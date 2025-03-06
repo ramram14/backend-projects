@@ -1,6 +1,6 @@
-import {Schema, model, models} from "mongoose";
+import mongoose from "mongoose";
 
-const commentSchema = new Schema(
+const commentSchema = new mongoose.Schema(
     {
         text: {
             type: String,
@@ -13,13 +13,13 @@ const commentSchema = new Schema(
             required: true
         },
         blog: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'Post',
             required: true
         },
         likes: [
             {
-                type: Schema.Types.ObjectId,
+                type: mongoose.Schema.Types.ObjectId,
                 ref: 'User'
             }
         ]
@@ -29,5 +29,5 @@ const commentSchema = new Schema(
     }
 )
 
-const Comment = models.Comment || model("Comment", commentSchema);
+const Comment = mongoose.models.Comment || mongoose.model("Comment", commentSchema);
 export default Comment;

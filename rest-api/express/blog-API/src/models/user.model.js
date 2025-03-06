@@ -1,9 +1,9 @@
-import { Schema, model, models } from "mongoose";
+import mongoose from "mongoose";
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcryptjs";
 import env from '../config/dotenv.js';
 
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -53,7 +53,7 @@ userSchema.methods.generateAccessToken = function () {
     return jwt.sign({
         _id: this._id
     },
-    env.JWT_ACCESS_TOKEN_SECRET_KEY,
+        env.JWT_ACCESS_TOKEN_SECRET_KEY,
         {
             expiresIn: env.JWT_ACCESS_TOKEN_EXPIRY
         });
@@ -69,5 +69,5 @@ userSchema.methods.generateRefreshToken = function () {
         });
 };
 
-const User = models.User || model('User', userSchema);
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 export default User;

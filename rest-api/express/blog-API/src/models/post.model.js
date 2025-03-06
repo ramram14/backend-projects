@@ -1,6 +1,6 @@
-import { Schema, models, model } from "mongoose";
+import mongoose from "mongoose";
 
-const postSchema = new Schema(
+const postSchema = new mongoose.Schema(
     {
         title: {
             type: String,
@@ -17,11 +17,11 @@ const postSchema = new Schema(
             maxLength: [100, 'Subtitle cannot exceed 100 characters']
         },
         content: {
-            type: Schema.Types.Mixed,
+            type: mongoose.Schema.Types.Mixed,
             required: true,
         },
         author: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true
         },
@@ -37,7 +37,7 @@ const postSchema = new Schema(
             unique: true
         },
         categories: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'Category',
             required: true
         }
@@ -48,13 +48,13 @@ const postSchema = new Schema(
         },
         likes: [
             {
-                type: Schema.Types.ObjectId,
+                type: mongoose.Schema.Types.ObjectId,
                 ref: 'User'
             }
         ],
         comments: [
             {
-                type: Schema.Types.ObjectId,
+                type: mongoose.Schema.Types.ObjectId,
                 ref: 'Comment'
             }
         ]
@@ -64,5 +64,5 @@ const postSchema = new Schema(
     }
 )
 
-const Post = models.Post || model("Post", postSchema);
+const Post = mongoose.models.Post || mongoose.model("Post", postSchema);
 export default Post;
