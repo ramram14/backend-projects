@@ -1,14 +1,15 @@
 import ApiError from "../utils/ApiError.js";
 import jwt from "jsonwebtoken";
+import env from '../config/dotenv.js'
 
 export const verifyAccessToken = (req, res, next) => {
     try {
-        const token = req.cookies[process.env.JWT_ACCESS_TOKEN_NAME];
+        const token = req.cookies[env.JWT_ACCESS_TOKEN_NAME];
         if (!token) {
             return next(new ApiError(401, 'Access denied. No token provided.'));
         }
 
-        const decodedToken = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET_KEY);
+        const decodedToken = jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET_KEY);
         if (!decodedToken || !decodedToken._id) {
             return next(new ApiError(401, 'Invalid token.'));
         }

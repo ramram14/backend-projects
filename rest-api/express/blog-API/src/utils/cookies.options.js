@@ -1,5 +1,4 @@
 import env from '../config/dotenv.js'
-import env from '../config/dotenv.js'
 import ms from 'ms'
 
 export const accessTokenCookieOptions = {
