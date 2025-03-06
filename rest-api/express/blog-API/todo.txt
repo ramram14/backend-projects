@@ -15,16 +15,20 @@ user routes
 GET /api/users
 GET /api/users/:id
 GET /api/users/:id/posts
-PUT /api/users/:id
+PATCH /api/users/:id/update-name
+PATCH /api/users/:id/update-email
+PATCH /api/users/:id/update-password
+PATCH /api/users/:id/update-profile-picture
+PATCH /api/users/:id/update-bio
 DELETE /api/users/:id
 
 post routes
 GET /api/posts
-GET /api/posts/:postId
-GET /api/posts/:postId/comments
+GET /api/posts/:slug
+GET /api/posts/:slug/comments
 POST /api/posts
-PUT /api/posts/:postId
-DELETE /api/posts/:postId
+PUT /api/posts/:id
+DELETE /api/posts/:id
 
 comment routes
 GET /api/comments/:commentId/replies
