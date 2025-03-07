@@ -1,11 +1,14 @@
-import {Router} from "express";
-import {getAllPosts, getPostbySlug, getPostCommentsBySlug, createPost, updatePostTitle, updatePostContentAndSubtitle, updatePostImage, updatePostCategory, deletePost} from '../controllers/post.controller.js';
+import { Router } from "express";
+import { getAllPosts, getPostbySlug, getPostCommentsBySlug, createPost, updatePostTitle, updatePostContentAndSubtitle, updatePostImage, updatePostCategory, deletePost } from '../controllers/post.controller.js';
+import { verifyAccessToken } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
 router.get('/', getAllPosts);
 router.get('/:slug', getPostbySlug);
 router.get('/:slug/comments', getPostCommentsBySlug);
+
+router.use(verifyAccessToken);
 router.post('/', createPost);
 router.patch('/:id/update-title', updatePostTitle);
 router.patch('/:id/update-content-subtitle', updatePostContentAndSubtitle);

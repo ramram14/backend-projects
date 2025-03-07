@@ -27,7 +27,10 @@ GET /api/posts
 GET /api/posts/:slug
 GET /api/posts/:slug/comments
 POST /api/posts
-PUT /api/posts/:id
+PATCH /api/posts/:id/update-title
+PATCH /api/posts/:id/update-content-and-subtitle
+PATCH /api/posts/:id/update-image
+PATCH /api/posts/:id/update-category
 DELETE /api/posts/:id
 
 comment routes
