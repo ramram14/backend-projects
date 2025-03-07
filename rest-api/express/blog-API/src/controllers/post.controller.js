@@ -4,8 +4,9 @@ import ApiResponse from '../utils/ApiResponse.js';
 import Post from '../models/post.model.js';
 import Category from '../models/category.model.js';
 import User from '../models/user.model.js';
+import Comment from '../models/comment.model.js';
 import { generateSlugByTitle } from '../utils/generate.slug.js';
-import {deleteImageOnCloudinary} from '../utils/cloudinary.js';
+import { deleteImageOnCloudinary } from '../utils/cloudinary.js';
 
 
 export const getAllPosts = asyncHandler(async (req, res, next) => {
@@ -62,20 +63,35 @@ export const getAllPosts = asyncHandler(async (req, res, next) => {
 
 export const getPostbySlug = asyncHandler(async (req, res, next) => {
     const { slug } = req.params;
-    const post = await Post.findOne({ slug }).populate('Category', 'User');
+    const post = await Post.findOne({ slug })
+        .populate('category', 'name')
+        .populate('author', '-password -refreshToken');
+
     if (!post) {
         return next(new ApiError(404, 'Post not found'));
     }
+
     return res.status(200).json(new ApiResponse(200, 'Post fetched successfully', post));
 });
 
 export const getPostCommentsBySlug = asyncHandler(async (req, res, next) => {
     const { slug } = req.params;
-    const post = await Post.findOne({ slug }).populate('Category', 'User');
+    const post = await Post.findOne({ slug });
     if (!post) {
         return next(new ApiError(404, 'Post not found'));
     }
-    return res.status(200).json(new ApiResponse(200, 'Post fetched successfully', post));
+
+    const postComments = await Comment.find({ post: post._id })
+        .populate('user', '-password -refreshToken')
+        .populate({
+            path: 'replies',
+            populate: {
+                path: 'user',
+                select: '-password -refreshToken'
+            }
+        })
+
+    return res.status(200).json(new ApiResponse(200, 'Post fetched successfully', postComments));
 });
 
 export const createPost = asyncHandler(async (req, res, next) => {
@@ -161,7 +177,7 @@ export const updatePostContentAndSubtitle = asyncHandler(async (req, res, next) 
         return next(new ApiError(403, 'You are not authorized to update this post'));
     }
 
-    const { subtitle, content } = req.body; 
+    const { subtitle, content } = req.body;
     if (!subtitle && !content) {
         return next(new ApiError(400, 'At least one field is required', 'Subtitle or content is required'));
     }
