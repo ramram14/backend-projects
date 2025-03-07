@@ -16,7 +16,7 @@ export const createComment = asyncHandler(async (req, res, next) => {
 
     const { text, postId } = req.body;
     if (!text || !postId) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Text and postId are required'));
     }
 
     const isPostExists = await Post.findById(postId);
@@ -43,7 +43,7 @@ export const createCommentReply = asyncHandler(async (req, res, next) => {
 
     const { text, commentId } = req.body;
     if (!text || !commentId) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Text and commentId are required'));
     }
 
     const comment = await Comment.findById(commentId);
@@ -80,7 +80,7 @@ export const updateComment = asyncHandler(async (req, res, next) => {
 
     const { text } = req.body;
     if (!text) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Text is required'));
     }
 
     comment.text = text;
@@ -110,7 +110,7 @@ export const updateCommentReply = asyncHandler(async (req, res, next) => {
     const { text } = req.body;
 
     if (!text) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Text is required'));
     }
 
     commentReply.text = text;
