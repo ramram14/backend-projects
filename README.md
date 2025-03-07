@@ -14,7 +14,7 @@ This repository contains multiple backend projects, ranging from simple REST API
     <th>Status</th>
   </tr>
   <tr>
-    <td><a href="https://github.com/ramram14/Roadmap.sh-solutions/tree/main/backend/Node-JS/Blogging-Platform-API" target="_blank" rel="noopener noreferrer"> Blog-API</a></td>
+    <td><a href="https://github.com/ramram14/backend-projects/tree/main/rest-api/express/blog-API" target="_blank" rel="noopener noreferrer"> Blog-API</a></td>
     <td>Express.js</td>
     <td>JWT Auth, CRUD, Cloudinary</td>
     <td>✅ Done</td>
