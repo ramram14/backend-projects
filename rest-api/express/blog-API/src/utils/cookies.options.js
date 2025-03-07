@@ -12,6 +12,6 @@ export const refreshTokenCookieOptions = {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
     sameSite: false,
-    path: '/api/auth/refresh-token',
+    path: '/api/v1/auth/refresh-token',
     maxAge: ms(env.JWT_REFRESH_TOKEN_EXPIRY)
 };

@@ -72,22 +72,24 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 });
 
 export const logoutUser = asyncHandler(async (req, res, next) => {
-    const incomingRefreshToken = req.cookies[env.JWT_REFRESH_TOKEN_NAME];
-    if (!incomingRefreshToken) {
-        return next(new ApiError(401, "Unauthorized"))
-    }
-    const userId = jwt.verify(incomingRefreshToken, env.JWT_REFRESH_TOKEN_SECRET_KEY)?._id;
-    if (!userId) {
-        return next(new ApiError(401, "Unauthorized"))
-    }
+    // const incomingRefreshToken = req.cookies[env.JWT_REFRESH_TOKEN_NAME];
 
+    // if (!incomingRefreshToken) {
+    //     return next(new ApiError(401, "Unauthorized"))
+    // }
+    // const userId = jwt.verify(incomingRefreshToken, env.JWT_REFRESH_TOKEN_SECRET_KEY)?._id;
+    // if (!userId) {
+    //     return next(new ApiError(401, "Unauthorized"))
+    // }
+
+    const userId = req.userId;
     const user = await User.findById(userId)
     if (!user) {
         return next(new ApiError(404, "User not found"))
     }
 
-    if (user.refreshToken !== incomingRefreshToken) {
-        return next(new ApiError(401, "Unauthorized"))
+    if (!user.refreshToken) {
+        return next(new ApiError(401, "Unauthorized, no refresh token found"))
     }
 
     user.refreshToken = null
@@ -95,7 +97,9 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
     await user.save()
 
 
-    res.clearCookie(env.JWT_REFRESH_TOKEN_NAME)
+    res
+        .clearCookie(env.JWT_REFRESH_TOKEN_NAME, { path: '/api/v1/auth/refresh-token' })
+        .clearCookie(env.JWT_ACCESS_TOKEN_NAME)
         .status(200)
         .json(new ApiResponse(200, 'User logged out successfully'))
 });
@@ -127,8 +131,14 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
             .status(200)
             .cookie(env.JWT_ACCESS_TOKEN_NAME, newAccessToken, accessTokenCookieOptions)
             .json(new ApiResponse(200, 'Success',));
-    } catch (error) {
-        return next(new ApiError(500, "Something went wrong while generating refresh and access token"))
+    } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            return next(new ApiError(401, 'Token has expired.'));
+        } else if (err.name === 'JsonWebTokenError') {
+            return next(new ApiError(401, 'Invalid token.'));
+        } else {
+            return next(new ApiError(500, 'Internal server error.'));
+        }
     }
 });
 
