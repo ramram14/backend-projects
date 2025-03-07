@@ -42,7 +42,9 @@ export const getAllPosts = asyncHandler(async (req, res, next) => {
 
 
     const posts = await Post.find(searchQuery)
-        .populate('Category', 'User')
+    .select('-content')
+        .populate('category', 'name')
+        .populate('author', '-password -refreshToken')
         .skip((page - 1) * limit)
         .limit(limit);
 
