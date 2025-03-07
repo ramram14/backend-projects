@@ -34,8 +34,9 @@ PATCH /api/posts/:id/update-category
 DELETE /api/posts/:id
 
 comment routes
-GET /api/comments/:commentId/replies
-POST /api/comments/:postId
-POST /api/comments/:commentId/replies
-PUT /api/comments/:commentId
-DELETE /api/comments/:commentId
+POST /api/comments
+POST /api/comments/reply
+PUT /api/comments/:id
+PUT /api/comments/reply/:replyId
+DELETE /api/comments/:id
+DELETE /api/comments/reply/:replyId 

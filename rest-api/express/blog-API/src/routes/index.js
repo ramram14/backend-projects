@@ -1,5 +1,4 @@
 import { Router } from "express";
-import ApiError from '../utils/ApiError.js';
 
 const router = Router();
 
@@ -23,9 +22,6 @@ router.use('/comments', commentRoutes);
 import imageRoutes from './image.routes.js';
 router.use('/images', imageRoutes);
 
-// Not found handler
-router.all('*', (req, res, next) => {
-    next(new ApiError(404, 'Not Found', [`${req.url} method ${req.method} is wrong url`]));
-});
+
 
 export default router;
