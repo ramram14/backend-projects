@@ -15,6 +15,10 @@ router.use('/users', userRoutes);
 import postRoutes from './post.routes.js';
 router.use('/posts', postRoutes);
 
+// Comment Routes
+import commentRoutes from './comment.routes.js';
+router.use('/comments', commentRoutes);
+
 // Not found handler
 router.all('*', (req, res, next) => {
     next(new ApiError(404, 'Not Found', [`${req.url} method ${req.method} is wrong url`]));
