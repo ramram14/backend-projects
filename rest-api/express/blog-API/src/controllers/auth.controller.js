@@ -6,6 +6,22 @@ import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../utils/co
 import jwt from 'jsonwebtoken';
 import env from '../config/dotenv.js';
 
+/**
+ * Register a new user
+ * 
+ * This function handles the registration of a new user. It validates the incoming
+ * request data (name, email, password, and password confirmation), checks for
+ * existing users, and creates a new user if all conditions are met. Additionally,
+ * it generates JWT access and refresh tokens, and responds with them in cookies.
+ * 
+ * @async
+ * @function registerUser
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @param {Function} next - The next middleware function
+ * @throws {ApiError} 400 - If any required fields are missing, passwords do not match, or the user already exists
+ * @returns {void} Responds with a 201 status code, success message, and cookies containing the JWT tokens
+ */
 export const registerUser = asyncHandler(async (req, res, next) => {
     const { name, email, password, password_confirmation } = req.body;
 
@@ -44,6 +60,22 @@ export const registerUser = asyncHandler(async (req, res, next) => {
         .json(new ApiResponse(201, 'User registered successfully',))
 });
 
+/**
+ * Log in an existing user
+ * 
+ * This function handles user login by validating the email and password provided
+ * in the request. It checks if the user exists in the database, validates the 
+ * password, and generates JWT access and refresh tokens if authentication is successful. 
+ * The tokens are then sent back in cookies for further authentication.
+ * 
+ * @async
+ * @function loginUser
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @param {Function} next - The next middleware function
+ * @throws {ApiError} 400 - If any required fields are missing, user not found, or invalid credentials
+ * @returns {void} Responds with a 200 status code, success message, and cookies containing the JWT tokens
+ */
 export const loginUser = asyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -71,17 +103,23 @@ export const loginUser = asyncHandler(async (req, res, next) => {
         .json(new ApiResponse(200, 'User logged in successfully'))
 });
 
+/**
+ * Log out a user and clear authentication tokens
+ * 
+ * This function handles user logout by checking if the user exists, ensuring that the user has a 
+ * valid refresh token, and then clearing the user's refresh token in the database. It also clears 
+ * the JWT access and refresh tokens stored in cookies, effectively logging the user out.
+ * 
+ * @async
+ * @function logoutUser
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @param {Function} next - The next middleware function
+ * @throws {ApiError} 404 - If the user is not found
+ * @throws {ApiError} 401 - If no refresh token is found for the user
+ * @returns {void} Responds with a 200 status code, success message, and clears cookies
+ */
 export const logoutUser = asyncHandler(async (req, res, next) => {
-    // const incomingRefreshToken = req.cookies[env.JWT_REFRESH_TOKEN_NAME];
-
-    // if (!incomingRefreshToken) {
-    //     return next(new ApiError(401, "Unauthorized"))
-    // }
-    // const userId = jwt.verify(incomingRefreshToken, env.JWT_REFRESH_TOKEN_SECRET_KEY)?._id;
-    // if (!userId) {
-    //     return next(new ApiError(401, "Unauthorized"))
-    // }
-
     const userId = req.userId;
     const user = await User.findById(userId)
     if (!user) {
@@ -96,6 +134,11 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
 
     await user.save()
 
+    const incomingAccessToken = req.cookies[env.JWT_ACCESS_TOKEN_NAME];
+
+    if (incomingAccessToken) {
+        res.clearCookie(env.JWT_ACCESS_TOKEN_NAME)
+    }
 
     res
         .clearCookie(env.JWT_REFRESH_TOKEN_NAME, { path: '/api/v1/auth/refresh-token' })
@@ -104,6 +147,24 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
         .json(new ApiResponse(200, 'User logged out successfully'))
 });
 
+/**
+ * Refresh the access token using a valid refresh token
+ * 
+ * This function handles the refresh of the access token by verifying the incoming refresh token from
+ * the cookies. If the refresh token is valid and belongs to the user, a new access token is generated 
+ * and sent back in a cookie. If any validation fails or errors occur during the process, an appropriate 
+ * error is thrown.
+ * 
+ * @async
+ * @function refreshAccessToken
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @param {Function} next - The next middleware function
+ * @throws {ApiError} 401 - If the refresh token is missing, invalid, or does not match the user's refresh token
+ * @throws {ApiError} 404 - If the user is not found
+ * @throws {ApiError} 500 - If an internal server error occurs
+ * @returns {void} Responds with a 200 status code, success message, and the new access token in a cookie
+ */
 export const refreshAccessToken = asyncHandler(async (req, res, next) => {
     try {
         const incomingRefreshToken = req.cookies[env.JWT_REFRESH_TOKEN_NAME];
@@ -142,6 +203,21 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
     }
 });
 
+/**
+ * Retrieve the data of a user by their user ID
+ * 
+ * This function fetches the user data (excluding password and refresh token) by the user's ID 
+ * from the request. If the user is not found, an error is thrown. Upon successful retrieval, 
+ * the user data is returned in the response.
+ * 
+ * @async
+ * @function getUserData
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @param {Function} next - The next middleware function
+ * @throws {ApiError} 404 - If the user is not found
+ * @returns {void} Responds with a 200 status code and the user data in the response
+ */
 export const getUserData = asyncHandler(async (req, res, next) => {
     const userId = req.userId;
     const user = await User.findById(userId).select('-password -refreshToken');

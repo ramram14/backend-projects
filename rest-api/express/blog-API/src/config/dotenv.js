@@ -1,7 +1,9 @@
 import dotenv from 'dotenv';
 
 dotenv.config();
-
+// =========================================================
+// Check if all required environment variables are defined
+// =========================================================
 const requiredEnvVars = [
     'NODE_ENV',
     'PORT',
