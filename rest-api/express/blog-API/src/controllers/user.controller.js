@@ -6,7 +6,7 @@ import Post from '../models/post.model.js';
 
 export const getUserById = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
-    const user = await User.findById(id);
+    const user = await User.findById(id).select('-password -refreshToken');
     if (!user) {
         return next(new ApiError(404, 'User not found'));
     }
@@ -26,7 +26,7 @@ export const updateUserName = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const { name, password } = req.body;
     if (!name || !password) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Name and password are required'));
     }
 
     const user = await User.findById(id);
@@ -35,7 +35,7 @@ export const updateUserName = asyncHandler(async (req, res, next) => {
     };
 
     const userIdFromToken = req.userId;
-    if (user._id !== userIdFromToken) {
+    if (user._id.toString() !== userIdFromToken) {
         return next(new ApiError(403, 'You are not authorized to update this user'));
     }
 
@@ -54,7 +54,7 @@ export const updateUserEmail = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const { email, password } = req.body;
     if (!email || !password) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Email and password are required'));
     }
 
     const user = await User.findById(id);
@@ -63,7 +63,7 @@ export const updateUserEmail = asyncHandler(async (req, res, next) => {
     };
 
     const userIdFromToken = req.userId;
-    if (user._id !== userIdFromToken) {
+    if (user._id.toString() !== userIdFromToken) {
         return next(new ApiError(403, 'You are not authorized to update this user'));
     }
 
@@ -81,7 +81,7 @@ export const updateUserPassword = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const { password, newPassword } = req.body;
     if (!password || !newPassword) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Password and new password are required'));
     }
 
     const user = await User.findById(id);
@@ -90,7 +90,7 @@ export const updateUserPassword = asyncHandler(async (req, res, next) => {
     };
 
     const userIdFromToken = req.userId;
-    if (user._id !== userIdFromToken) {
+    if (user._id.toString() !== userIdFromToken) {
         return next(new ApiError(403, 'You are not authorized to update this user'));
     }
 
@@ -105,9 +105,9 @@ export const updateUserPassword = asyncHandler(async (req, res, next) => {
 
 export const updateUserProfilePicture = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
-    const { profilePicture } = req.body;
-    if (!profilePicture) {
-        return next(new ApiError(400, 'Profile picture is required'));
+    const { image } = req.body;
+    if (!image) {
+        return next(new ApiError(400, 'All fields are required', 'Profile picture is required'));
     }
 
     const user = await User.findById(id);
@@ -116,12 +116,13 @@ export const updateUserProfilePicture = asyncHandler(async (req, res, next) => {
     };
 
     const userIdFromToken = req.userId;
-    if (user._id !== userIdFromToken) {
+    if (user._id.toString() !== userIdFromToken) {
         return next(new ApiError(403, 'You are not authorized to update this user'));
     }
 
-    user.profilePicture = profilePicture;
+    user.image = image;
     await user.save();
+
     res.status(200).json(new ApiResponse(200, 'User profile picture updated successfully'));
 });
 
@@ -129,7 +130,7 @@ export const updateUserBio = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const { bio } = req.body;
     if (!bio) {
-        return next(new ApiError(400, 'Bio is required'));
+        return next(new ApiError(400, 'All fields are required', 'Bio is required'));
     }
 
     const user = await User.findById(id);
@@ -138,7 +139,7 @@ export const updateUserBio = asyncHandler(async (req, res, next) => {
     };
 
     const userIdFromToken = req.userId;
-    if (user._id !== userIdFromToken) {
+    if (user._id.toString() !== userIdFromToken) {
         return next(new ApiError(403, 'You are not authorized to update this user'));
     }
 
@@ -150,9 +151,9 @@ export const updateUserBio = asyncHandler(async (req, res, next) => {
 export const deleteUser = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
 
-    const {password} = req.body;
+    const { password } = req.body;
     if (!password) {
-        return next(new ApiError(400, 'Password is required'));
+        return next(new ApiError(400, 'All fields are required', 'Password is required'));
     }
 
     const user = await User.findById(id);
@@ -161,7 +162,7 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
     }
 
     const userIdFromToken = req.userId;
-    if (user._id !== userIdFromToken) {
+    if (user._id.toString() !== userIdFromToken) {
         return next(new ApiError(403, 'You are not authorized to update this user'));
     }
 

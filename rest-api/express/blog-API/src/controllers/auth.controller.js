@@ -11,7 +11,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
     // Check if all fields are provided
     if (!name || !email || !password || !password_confirmation) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Name, email, password, and password confirmation are required'));
     }
 
     // Check if password is at least 6 characters
@@ -47,7 +47,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 export const loginUser = asyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Email and password are required'));
     }
 
     // Check if user exists
@@ -144,7 +144,7 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
 
 export const getUserData = asyncHandler(async (req, res, next) => {
     const userId = req.userId;
-    const user = await User.findById(userId).select('-password');
+    const user = await User.findById(userId).select('-password -refreshToken');
     if (!user) {
         return next(new ApiError(404, "User not found"));
     }

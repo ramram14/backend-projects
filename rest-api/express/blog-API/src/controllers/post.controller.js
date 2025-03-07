@@ -89,7 +89,7 @@ export const createPost = asyncHandler(async (req, res, next) => {
 
     const { title, subtitle, content, image, category } = req.body;
     if (!title || !subtitle || !content || !image || !category) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Title, subtitle, content, image, and category are required'));
     }
 
     const isCategoryExists = await Category.findOne({ name: category });
@@ -133,7 +133,7 @@ export const updatePostTitle = asyncHandler(async (req, res, next) => {
 
     const { title } = req.body;
     if (!title) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Title is required'));
     }
 
     const newSlug = await generateSlugByTitle(title);
@@ -163,7 +163,7 @@ export const updatePostContentAndSubtitle = asyncHandler(async (req, res, next) 
 
     const { subtitle, content } = req.body; 
     if (!subtitle && !content) {
-        return next(new ApiError(400, 'At least one field is required'));
+        return next(new ApiError(400, 'At least one field is required', 'Subtitle or content is required'));
     }
 
     post.subtitle = subtitle || post.subtitle;;
@@ -191,7 +191,7 @@ export const updatePostImage = asyncHandler(async (req, res, next) => {
 
     const { image } = req.body;
     if (!image) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Image is required'));
     }
 
     // delete old image from cloudinary
@@ -221,7 +221,7 @@ export const updatePostCategory = asyncHandler(async (req, res, next) => {
 
     const { category } = req.body;
     if (!category) {
-        return next(new ApiError(400, 'All fields are required'));
+        return next(new ApiError(400, 'All fields are required', 'Category is required'));
     }
 
     const isCategoryExists = await Category.findOne({ name: category });
