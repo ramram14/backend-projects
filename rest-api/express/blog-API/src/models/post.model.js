@@ -36,7 +36,7 @@ const postSchema = new mongoose.Schema(
             trim: true,
             unique: true
         },
-        categories: {
+        category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Category',
             required: true
@@ -52,12 +52,6 @@ const postSchema = new mongoose.Schema(
                 ref: 'User'
             }
         ],
-        comments: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Comment'
-            }
-        ]
     },
     {
         timestamps: true
