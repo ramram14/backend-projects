@@ -20,7 +20,7 @@ import env from '../config/dotenv.js';
  * @param {Object} res - The response object
  * @param {Function} next - The next middleware function
  * @throws {ApiError} 400 - If any required fields are missing, passwords do not match, or the user already exists
- * @returns {void} Responds with a 201 status code, success message, and cookies containing the JWT tokens
+ * @returns {void} Responds with a 201 status code, user data, success message, and cookies containing the JWT tokens
  */
 export const registerUser = asyncHandler(async (req, res, next) => {
     const { name, email, password, password_confirmation } = req.body;
@@ -54,10 +54,13 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
     await user.save()
 
+    // Create user data without important fields
+    const { password: _password, refreshToken: _refreshToken, ...userData } = user.toObject();
+
     res.status(201)
         .cookie(env.JWT_REFRESH_TOKEN_NAME, refreshToken, refreshTokenCookieOptions)
         .cookie(env.JWT_ACCESS_TOKEN_NAME, accessToken, accessTokenCookieOptions)
-        .json(new ApiResponse(201, 'User registered successfully',))
+        .json(new ApiResponse(201, 'User registered successfully', userData));
 });
 
 /**
@@ -74,7 +77,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
  * @param {Object} res - The response object
  * @param {Function} next - The next middleware function
  * @throws {ApiError} 400 - If any required fields are missing, user not found, or invalid credentials
- * @returns {void} Responds with a 200 status code, success message, and cookies containing the JWT tokens
+ * @returns {void} Responds with a 200 status code, user data, success message, and cookies containing the JWT tokens
  */
 export const loginUser = asyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
@@ -92,15 +95,18 @@ export const loginUser = asyncHandler(async (req, res, next) => {
         return next(new ApiError(400, 'Invalid email or password'));
     }
 
-    const accessToken = user.generateAccessToken()
-    const refreshToken = user.generateRefreshToken()
-    user.refreshToken = refreshToken
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+    user.refreshToken = refreshToken;
     await user.save();
+
+    // Create user data without important fields
+    const { password: _password, refreshToken: _refreshToken, ...userData } = user.toObject();
 
     res.status(200)
         .cookie(env.JWT_REFRESH_TOKEN_NAME, refreshToken, refreshTokenCookieOptions)
         .cookie(env.JWT_ACCESS_TOKEN_NAME, accessToken, accessTokenCookieOptions)
-        .json(new ApiResponse(200, 'User logged in successfully'))
+        .json(new ApiResponse(200, 'User logged in successfully', userData));
 });
 
 /**

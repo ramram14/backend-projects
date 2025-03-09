@@ -102,7 +102,7 @@ The Blog API offers a comprehensive suite of endpoints designed for seamless man
   ```
 
 - **Response**:
-  - 201 Created: User registered successfully and a new access token and refresh token is returned in cookies.
+  - 201 Created: Return user information and a new access token and refresh token is returned in cookies.
   - 400 Bad Request: If the request body is invalid or the email is already in use.
 
 #### `POST /api/v1/auth/login`
@@ -118,7 +118,7 @@ The Blog API offers a comprehensive suite of endpoints designed for seamless man
   ```
 
 - **Response**:
-  - 200 OK: Returns a new access token in cookies.
+  - 200 OK: Return user information and a new access token in cookies.
   - 400 Bad Request: If the request body is invalid or the email or password is incorrect.
 
 #### `DELETE /api/v1/auth/logout`
