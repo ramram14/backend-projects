@@ -1,7 +1,7 @@
 import env from '../config/dotenv.js'
 import ms from 'ms'
 
-
+const expiryDate = new Date();
 /**
  * Configuration options for setting the access token cookie.
  * These options are used to configure the behavior of the access token cookie, such as 
@@ -17,7 +17,7 @@ import ms from 'ms'
 export const accessTokenCookieOptions = {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
-    sameSite: 'None',
+    sameSite: env.NODE_ENV === 'production' ? 'None' : 'Lax',
     maxAge: ms(env.JWT_ACCESS_TOKEN_EXPIRY)
 };
 
@@ -37,7 +37,7 @@ export const accessTokenCookieOptions = {
 export const refreshTokenCookieOptions = {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
-    sameSite: 'None',
+    sameSite: env.NODE_ENV === 'production' ? 'None' : 'Lax',
     path: '/',
     maxAge: ms(env.JWT_REFRESH_TOKEN_EXPIRY)
 };

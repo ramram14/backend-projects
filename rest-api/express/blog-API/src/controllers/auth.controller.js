@@ -99,10 +99,9 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     const refreshToken = user.generateRefreshToken();
     user.refreshToken = refreshToken;
     await user.save();
-
+    console.log(refreshTokenCookieOptions)
     // Create user data without important fields
     const { password: _password, refreshToken: _refreshToken, ...userData } = user.toObject();
-
     res.status(200)
         .cookie(env.JWT_REFRESH_TOKEN_NAME, refreshToken, refreshTokenCookieOptions)
         .cookie(env.JWT_ACCESS_TOKEN_NAME, accessToken, accessTokenCookieOptions)
