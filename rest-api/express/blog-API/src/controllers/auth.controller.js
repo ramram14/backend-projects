@@ -23,44 +23,44 @@ import env from '../config/dotenv.js';
  * @returns {void} Responds with a 201 status code, user data, success message, and cookies containing the JWT tokens
  */
 export const registerUser = asyncHandler(async (req, res, next) => {
-    const { name, email, password, password_confirmation } = req.body;
+  const { name, email, password, password_confirmation } = req.body;
 
-    // Check if all fields are provided
-    if (!name || !email || !password || !password_confirmation) {
-        return next(new ApiError(400, 'All fields are required', 'Name, email, password, and password confirmation are required'));
-    }
+  // Check if all fields are provided
+  if (!name || !email || !password || !password_confirmation) {
+    return next(new ApiError(400, 'All fields are required', 'Name, email, password, and password confirmation are required'));
+  }
 
-    // Check if password is at least 6 characters
-    if (password.length < 6) {
-        return next(new ApiError(400, 'Password must be at least 6 characters'));
-    }
+  // Check if password is at least 6 characters
+  if (password.length < 6) {
+    return next(new ApiError(400, 'Password must be at least 6 characters'));
+  }
 
-    // Check if password same as password_confirmation
-    if (password !== password_confirmation) {
-        return next(new ApiError(400, 'Passwords do not match'));
-    }
+  // Check if password same as password_confirmation
+  if (password !== password_confirmation) {
+    return next(new ApiError(400, 'Passwords do not match'));
+  }
 
-    // Check if user email or name already exists
-    const userExists = await User.findOne({ email, name });
-    if (userExists) {
-        return next(new ApiError(400, 'User already exists'));
-    }
+  // Check if user email or name already exists
+  const userExists = await User.findOne({ email, name });
+  if (userExists) {
+    return next(new ApiError(400, 'User already exists'));
+  }
 
-    const user = new User({ name, email, password });
+  const user = new User({ name, email, password });
 
-    const accessToken = user.generateAccessToken()
-    const refreshToken = user.generateRefreshToken()
-    user.refreshToken = refreshToken
+  const accessToken = user.generateAccessToken()
+  const refreshToken = user.generateRefreshToken()
+  user.refreshToken = refreshToken
 
-    await user.save()
+  await user.save()
 
-    // Create user data without important fields
-    const { password: _password, refreshToken: _refreshToken, ...userData } = user.toObject();
+  // Create user data without important fields
+  const { password: _password, refreshToken: _refreshToken, ...userData } = user.toObject();
 
-    res.status(201)
-        .cookie(env.JWT_REFRESH_TOKEN_NAME, refreshToken, refreshTokenCookieOptions)
-        .cookie(env.JWT_ACCESS_TOKEN_NAME, accessToken, accessTokenCookieOptions)
-        .json(new ApiResponse(201, 'User registered successfully', userData));
+  res.status(201)
+    .cookie(env.JWT_REFRESH_TOKEN_NAME, refreshToken, refreshTokenCookieOptions)
+    .cookie(env.JWT_ACCESS_TOKEN_NAME, accessToken, accessTokenCookieOptions)
+    .json(new ApiResponse(201, 'User registered successfully', userData));
 });
 
 /**
@@ -80,32 +80,31 @@ export const registerUser = asyncHandler(async (req, res, next) => {
  * @returns {void} Responds with a 200 status code, user data, success message, and cookies containing the JWT tokens
  */
 export const loginUser = asyncHandler(async (req, res, next) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return next(new ApiError(400, 'All fields are required', 'Email and password are required'));
-    }
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return next(new ApiError(400, 'All fields are required', 'Email and password are required'));
+  }
 
-    // Check if user exists
-    const user = await User.findOne({ email });
-    if (!user) {
-        return next(new ApiError(400, 'Invalid email or password'));
-    }
-    const isPasswordCorrect = await user.isPasswordCorrect(password);
-    if (!isPasswordCorrect) {
-        return next(new ApiError(400, 'Invalid email or password'));
-    }
+  // Check if user exists
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new ApiError(400, 'Invalid email or password'));
+  }
+  const isPasswordCorrect = await user.isPasswordCorrect(password);
+  if (!isPasswordCorrect) {
+    return next(new ApiError(400, 'Invalid email or password'));
+  }
 
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
-    user.refreshToken = refreshToken;
-    await user.save();
-    console.log(refreshTokenCookieOptions)
-    // Create user data without important fields
-    const { password: _password, refreshToken: _refreshToken, ...userData } = user.toObject();
-    res.status(200)
-        .cookie(env.JWT_REFRESH_TOKEN_NAME, refreshToken, refreshTokenCookieOptions)
-        .cookie(env.JWT_ACCESS_TOKEN_NAME, accessToken, accessTokenCookieOptions)
-        .json(new ApiResponse(200, 'User logged in successfully', userData));
+  const accessToken = user.generateAccessToken();
+  const refreshToken = user.generateRefreshToken();
+  user.refreshToken = refreshToken;
+  await user.save();
+  // Create user data without important fields
+  const { password: _password, refreshToken: _refreshToken, ...userData } = user.toObject();
+  res.status(200)
+    .cookie(env.JWT_REFRESH_TOKEN_NAME, refreshToken, refreshTokenCookieOptions)
+    .cookie(env.JWT_ACCESS_TOKEN_NAME, accessToken, accessTokenCookieOptions)
+    .json(new ApiResponse(200, 'User logged in successfully', userData));
 });
 
 /**
@@ -125,31 +124,31 @@ export const loginUser = asyncHandler(async (req, res, next) => {
  * @returns {void} Responds with a 200 status code, success message, and clears cookies
  */
 export const logoutUser = asyncHandler(async (req, res, next) => {
-    const userId = req.userId;
-    const user = await User.findById(userId)
-    if (!user) {
-        return next(new ApiError(404, "User not found"))
-    }
+  const userId = req.userId;
+  const user = await User.findById(userId)
+  if (!user) {
+    return next(new ApiError(404, "User not found"))
+  }
 
-    if (!user.refreshToken) {
-        return next(new ApiError(401, "Unauthorized, no refresh token found"))
-    }
+  if (!user.refreshToken) {
+    return next(new ApiError(401, "Unauthorized, no refresh token found"))
+  }
 
-    user.refreshToken = null
+  user.refreshToken = null
 
-    await user.save()
+  await user.save()
 
-    const incomingAccessToken = req.cookies[env.JWT_ACCESS_TOKEN_NAME];
+  const incomingAccessToken = req.cookies[env.JWT_ACCESS_TOKEN_NAME];
 
-    if (incomingAccessToken) {
-        res.clearCookie(env.JWT_ACCESS_TOKEN_NAME)
-    }
+  if (incomingAccessToken) {
+    res.clearCookie(env.JWT_ACCESS_TOKEN_NAME)
+  }
 
-    res
-        .clearCookie(env.JWT_REFRESH_TOKEN_NAME, { path: '/api/v1/auth/refresh-token' })
-        .clearCookie(env.JWT_ACCESS_TOKEN_NAME)
-        .status(200)
-        .json(new ApiResponse(200, 'User logged out successfully'))
+  res
+    .clearCookie(env.JWT_REFRESH_TOKEN_NAME, { path: '/api/v1/auth/refresh-token' })
+    .clearCookie(env.JWT_ACCESS_TOKEN_NAME)
+    .status(200)
+    .json(new ApiResponse(200, 'User logged out successfully'))
 });
 
 /**
@@ -171,41 +170,41 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
  * @returns {void} Responds with a 200 status code, success message, and the new access token in a cookie
  */
 export const refreshAccessToken = asyncHandler(async (req, res, next) => {
-    try {
-        const incomingRefreshToken = req.cookies[env.JWT_REFRESH_TOKEN_NAME];
-        if (!incomingRefreshToken) {
-            return next(new ApiError(401, "Unauthorized"))
-        }
-        const userId = jwt.verify(incomingRefreshToken, env.JWT_REFRESH_TOKEN_SECRET_KEY)?._id;
-        if (!userId) {
-            return next(new ApiError(401, "Unauthorized"))
-        }
-
-        const user = await User.findById(userId)
-        if (!user) {
-            return next(new ApiError(404, "User not found"))
-        }
-        if (user.refreshToken !== incomingRefreshToken) {
-            return next(new ApiError(401, "Unauthorized"))
-        }
-
-        // Generate new access token
-        const newAccessToken = user.generateAccessToken()
-
-        res
-            .clearCookie(env.JWT_ACCESS_TOKEN_NAME)
-            .status(200)
-            .cookie(env.JWT_ACCESS_TOKEN_NAME, newAccessToken, accessTokenCookieOptions)
-            .json(new ApiResponse(200, 'Success',));
-    } catch (err) {
-        if (err.name === 'TokenExpiredError') {
-            return next(new ApiError(401, 'Token has expired.'));
-        } else if (err.name === 'JsonWebTokenError') {
-            return next(new ApiError(401, 'Invalid token.'));
-        } else {
-            return next(new ApiError(500, 'Internal server error.'));
-        }
+  try {
+    const incomingRefreshToken = req.cookies[env.JWT_REFRESH_TOKEN_NAME];
+    if (!incomingRefreshToken) {
+      return next(new ApiError(401, "Unauthorized"))
     }
+    const userId = jwt.verify(incomingRefreshToken, env.JWT_REFRESH_TOKEN_SECRET_KEY)?._id;
+    if (!userId) {
+      return next(new ApiError(401, "Unauthorized"))
+    }
+
+    const user = await User.findById(userId)
+    if (!user) {
+      return next(new ApiError(404, "User not found"))
+    }
+    if (user.refreshToken !== incomingRefreshToken) {
+      return next(new ApiError(401, "Unauthorized"))
+    }
+
+    // Generate new access token
+    const newAccessToken = user.generateAccessToken()
+
+    res
+      .clearCookie(env.JWT_ACCESS_TOKEN_NAME)
+      .status(200)
+      .cookie(env.JWT_ACCESS_TOKEN_NAME, newAccessToken, accessTokenCookieOptions)
+      .json(new ApiResponse(200, 'Success',));
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return next(new ApiError(401, 'Token has expired.'));
+    } else if (err.name === 'JsonWebTokenError') {
+      return next(new ApiError(401, 'Invalid token.'));
+    } else {
+      return next(new ApiError(500, 'Internal server error.'));
+    }
+  }
 });
 
 /**
@@ -224,10 +223,10 @@ export const refreshAccessToken = asyncHandler(async (req, res, next) => {
  * @returns {void} Responds with a 200 status code and the user data in the response
  */
 export const getUserData = asyncHandler(async (req, res, next) => {
-    const userId = req.userId;
-    const user = await User.findById(userId).select('-password -refreshToken');
-    if (!user) {
-        return next(new ApiError(404, "User not found"));
-    }
-    res.status(200).json(new ApiResponse(200, 'User data retrieved successfully', user));
+  const userId = req.userId;
+  const user = await User.findById(userId).select('-password -refreshToken');
+  if (!user) {
+    return next(new ApiError(404, "User not found"));
+  }
+  res.status(200).json(new ApiResponse(200, 'User data retrieved successfully', user));
 });

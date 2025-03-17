@@ -13,6 +13,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@tiptap/core": "^2.11.5",
+    "@tiptap/react": "^2.11.5",
+    "@tiptap/starter-kit": "^2.11.5",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.5.1",
     "compression": "^1.8.0",

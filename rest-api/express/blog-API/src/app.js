@@ -13,10 +13,10 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(
-    cors({
-        origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
-        credentials: true,
-    })
+  cors({
+    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+    credentials: true,
+  })
 );
 app.use(helmet());  // 🔒 Protection HTTP request
 app.use(morgan('dev')); // 📜 Logging request to console
@@ -24,9 +24,9 @@ app.use(hpp()); // 🛡️ Protection from HTTP Parameter Pollution
 app.use(compression()); // 🚀 Faster request with compression
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Maks 100 request from the same IP
-    message: 'Too many requests from this IP, please try again later'
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Maks 100 request from the same IP
+  message: 'Too many requests from this IP, please try again later'
 });
 
 // All Routes
@@ -35,7 +35,7 @@ app.use('/api/v1', limiter, apiRoutes);
 
 // Not found handler
 app.all('*', (req, res, next) => {
-    next(new ApiError(404, 'Not Found', [`${req.url} method ${req.method} is wrong url`]));
+  next(new ApiError(404, 'Not Found', [`${req.url} method ${req.method} is wrong url`]));
 });
 
 // Global Error Handling Middleware

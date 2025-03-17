@@ -18,14 +18,14 @@ import { uploadImageOnCloudinary, deleteImageOnCloudinary } from '../utils/cloud
  * @returns {Object} Responds with a 200 status code, success message, and the uploaded image URL.
  */
 export const uploadImage = asyncHandler(async (req, res, next) => {
-    const file = req.file;
-    if (!file) {
-        return next(new ApiError(400, 'No file uploaded'));
-    }
+  const file = req.file;
+  if (!file) {
+    return next(new ApiError(400, 'No file uploaded'));
+  }
 
-    const responseUploadImage = await uploadImageOnCloudinary(file.path);
+  const responseUploadImage = await uploadImageOnCloudinary(file.path);
 
-    return res.status(200).json(new ApiResponse(200, 'File uploaded successfully', { imageUrl: responseUploadImage }));
+  return res.status(200).json(new ApiResponse(200, 'File uploaded successfully', { imageUrl: responseUploadImage }));
 });
 
 /**
@@ -43,15 +43,16 @@ export const uploadImage = asyncHandler(async (req, res, next) => {
  * @returns {Object} Responds with a 200 status code and a success message after image deletion.
  */
 export const deleteImage = asyncHandler(async (req, res, next) => {
-    const { imageUrl } = req.body;
-    if (!imageUrl) {
-        return next(new ApiError(400, 'No image url provided'));
-    }
+  const { imageUrl } = req.body;
+  console.log(imageUrl);
+  if (!imageUrl) {
+    return next(new ApiError(400, 'No image url provided'));
+  }
 
-    const responseDeleteImage = await deleteImageOnCloudinary(imageUrl);
-    if (!responseDeleteImage) {
-        return next(new ApiError(400, 'Failed to delete image'));
-    }
+  const responseDeleteImage = await deleteImageOnCloudinary(imageUrl);
+  if (!responseDeleteImage) {
+    return next(new ApiError(400, 'Failed to delete image'));
+  }
 
-    return res.status(200).json(new ApiResponse(200, 'Image deleted successfully'));
+  return res.status(200).json(new ApiResponse(200, 'Image deleted successfully'));
 });
